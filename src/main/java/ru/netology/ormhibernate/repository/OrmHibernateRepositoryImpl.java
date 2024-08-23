@@ -1,20 +1,18 @@
 package ru.netology.ormhibernate.repository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.netology.ormhibernate.entity.Person;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
 public class OrmHibernateRepositoryImpl implements OrmHibernateRepository {
-    private final EntityManager entityManager;
-
-    private final static int RECORDS = 3;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final List<Person.Human> humans = List.of(
             Person.Human.builder().name("Ivan").surname("Petrov").age(18).build(),
@@ -31,15 +29,9 @@ public class OrmHibernateRepositoryImpl implements OrmHibernateRepository {
     @Override
     @Transactional
     public List<Person> getPersonsByCity(String city) {
-        List<Person> persons = new ArrayList<>();
-        for (int i = 0; i < RECORDS; i++) {
-            Person.Human human = humans.get(i);
-            Person person = entityManager.find(Person.class, human);
-            if (person.getCityOfLiving().equalsIgnoreCase(city)) {
-                persons.add(person);
-            }
-        }
-        return persons;
+        Query jpqlQuery = entityManager.createQuery("SELECT p FROM Person p WHERE lower(p.cityOfLiving) = :city");
+        jpqlQuery.setParameter("city", city.toLowerCase());
+        return jpqlQuery.getResultList();
     }
 
     @Override
