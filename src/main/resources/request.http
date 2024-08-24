@@ -1,5 +1,148 @@
-###
-GET http://127.0.0.1:8080/persons/init
+### Fill database with initial data
+### Люди живут в городах, Анна Оболонская (id=1) в 16 лет живет в Ясной Поляне
+POST http://127.0.0.1:8080/person
+Content-Type: application/json
 
-###
-GET http://127.0.0.1:8080/persons/by-city?city=moscow
+[
+  {
+    "human": {
+      "id": 1,
+      "name": "Анна",
+      "surname": "Оболонская",
+      "age": 16
+    },
+    "phoneNumber": "+7-4872-88-44-33",
+    "cityOfLiving": "Ясная Поляна"
+  },
+  {
+    "human": {
+      "id": 2,
+      "name": "Пётр",
+      "surname": "Иванов",
+      "age": 19
+    },
+    "phoneNumber": "+7-812-888-11-22",
+    "cityOfLiving": "Санкт-Петербург"
+  },
+  {
+    "human": {
+      "id": 3,
+      "name": "Иван",
+      "surname": "Петров",
+      "age": 25
+    },
+    "phoneNumber": "+7-495-444-99-55",
+    "cityOfLiving": "Москва"
+  },
+  {
+    "human": {
+      "id": 4,
+      "name": "Александр",
+      "surname": "Пушкин",
+      "age": 35
+    },
+    "phoneNumber": "+7-862-888-66-22",
+    "cityOfLiving": "Сочи"
+  }
+]
+
+
+### Get Person by Human ID
+GET http://127.0.0.1:8080/person/1
+
+### Get Person by Human name and surname
+GET http://127.0.0.1:8080/person?name=Александр&surname=Пушкин
+
+### Get all Persons
+GET http://127.0.0.1:8080/person
+
+### Get Person by Human name
+GET http://127.0.0.1:8080/person?name=Анна
+
+### Get Person by Human surname
+GET http://127.0.0.1:8080/person?surname=Оболонская
+
+### Get Person by City if Living
+### В Ясной Поляне живет Анна Оболонская в свои 16 лет
+GET http://127.0.0.1:8080/person/by-city?city=Ясная+Поляна
+
+### Get Person by age less than pointed, sorted by DESC
+GET http://127.0.0.1:8080/person/by-age?age=20
+
+### #1 Update Person filelds only by Human ID (if Human fields changed, then ignore this Update)
+### Анна Оболонская приехала в Питер и сказала, что ей 18 лет, чтобы получить новую СИМку
+### СИМку не дали и из Питера выгнали, т.к. при смене города и СИМки нельзя менять паспортные данные Human (Primary Key)
+PUT http://127.0.0.1:8080/person/1/update-person-data
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Оболонская",
+    "age": 18
+  },
+  "phoneNumber": "+7-812-888-11-22",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### #2 Update Person filelds only by Human ID (if Human fields changed, then ignore this Update)
+### См.#1 выше + Анна Оболонская взяла разрешение у тётушки (родителей у неё не было) и получила СИМку в 16 лет
+PUT http://127.0.0.1:8080/person/1/update-person-data
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Оболонская",
+    "age": 16
+  },
+  "phoneNumber": "+7-812-888-11-22",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Update full Person (Person & Human filelds) by Human ID independently that Human (PK) changed => use JPQL
+### А если бы Анна дождалась 17 лет и сразу: вышла замуж, обноваила паспорт, переехала и запросила новую СИМку
+### то сотрудник Картотеки сразу бы поменял данные, не оставляя старые и ящике (id=1) лежал бы один паспорт
+PUT http://127.0.0.1:8080/person/1/pure-update-person-human-data
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 17
+  },
+  "phoneNumber": "+7-423-444-44-33",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Insert/Update by Human ID: Update Person if only Person filelds changed and Insert if Human fields changed
+### Анна Оболонская в 17 лет вышла замуж за Алексея Каренина, сменила паспорт: Фамилию, Возраст, Прописка, СИМка (Human PK)
+### При этом, в Картотеке в ящике Анны (id=1) осталичсь данные старого паспорта и добавлены новые (Hunam PK = две записи с humanId=1))
+PUT http://127.0.0.1:8080/person/1/reinsert-person-human
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 16
+  },
+  "phoneNumber": "+7-812-777-77-77",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete Person by Human ID
+### А потом Анна Каренина бросилась под поезд, а клерк сжёг её данные из Картотеки
+DELETE http://127.0.0.1:8080/person/1
+
+### Delete ALL Persons
+DELETE http://127.0.0.1:8080/person
