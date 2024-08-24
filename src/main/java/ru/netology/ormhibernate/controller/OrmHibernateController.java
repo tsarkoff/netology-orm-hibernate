@@ -23,7 +23,7 @@ public class OrmHibernateController {
      * @return saved person list
      */
     @PostMapping
-    public List<Person> savePersons(@Valid @RequestBody List<Person> persons) {
+    public int savePersons(@Valid @RequestBody List<Person> persons) {
         return ormHibernateService.savePersons(persons);
     }
 
@@ -82,7 +82,7 @@ public class OrmHibernateController {
      * @return person updated
      */
     @PutMapping("/{id}/update-person-data")
-    public Optional<Person> updatePersonFieldsByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
+    public int updatePersonFieldsByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
         return ormHibernateService.updatePersonFieldsByHumanId(person, id);
     }
 
@@ -93,8 +93,8 @@ public class OrmHibernateController {
      * @param id     person (human) identifier
      */
     @PutMapping("/{id}/pure-update-person-human-data")
-    public void updatePerson(@Valid @RequestBody Person person, @PathVariable long id) {
-        ormHibernateService.jpqlUpdateFullPersonByHumanId(person, id);
+    public int updatePerson(@Valid @RequestBody Person person, @PathVariable long id) {
+        return ormHibernateService.updateFullPersonByHumanId(person, id);
     }
 
     /**
@@ -105,7 +105,7 @@ public class OrmHibernateController {
      * @return person updated
      */
     @PutMapping("/{id}/reinsert-person-human")
-    public Optional<Person> updateOrReinsertPersonByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
+    public int updateOrReinsertPersonByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
         return ormHibernateService.updateOrReinsertPersonByHumanId(person, id);
     }
 
@@ -126,7 +126,7 @@ public class OrmHibernateController {
      * @return operation result
      */
     @DeleteMapping
-    public boolean deleteAllPersons() {
+    public int deleteAllPersons() {
         return ormHibernateService.deleteAllPersons();
     }
 }

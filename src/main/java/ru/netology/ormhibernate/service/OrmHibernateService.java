@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.netology.ormhibernate.entity.Person;
 import ru.netology.ormhibernate.repository.PersonRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,13 +14,19 @@ public class OrmHibernateService {
     private final PersonRepository personRepository;
 
     // POST - Save - CRUD - Create
-    public List<Person> savePersons(List<Person> persons) {
-        List<Person> personList = new ArrayList<>();
-        for (Person person : persons) {
-            personRepository.findByHumanId(person.getHuman().getId()).ifPresent(personRepository::delete);
-            personList.add(personRepository.save(person));
+    public int savePersons(List<Person> persons) {
+        int count = 0;
+        for (Person p : persons) {
+            count += personRepository.savePerson(
+                    p.getHuman().getId(),
+                    p.getHuman().getName(),
+                    p.getHuman().getSurname(),
+                    p.getHuman().getAge(),
+                    p.getPhoneNumber(),
+                    p.getCityOfLiving()
+            );
         }
-        return personList;
+        return count;
     }
 
     // GET - Get - CRUD - Read
@@ -31,7 +36,7 @@ public class OrmHibernateService {
 
     // GET - Get - CRUD - Read
     public List<Person> findByCityOfLiving(String city) {
-        return personRepository.findByCityOfLivingIgnoreCase(city);
+        return personRepository.findByCityOfLiving(city);
     }
 
     // GET - Get - CRUD - Read
@@ -42,29 +47,25 @@ public class OrmHibernateService {
     // GET - Get - CRUD - Read
     public List<Person> findByHumanNameAndHumanSurname(Optional<String> name, Optional<String> surname) {
         if (name.isPresent() && surname.isEmpty())
-            return personRepository.findByHumanNameIgnoreCase(name);
+            return personRepository.findByHumanName(name);
         if (name.isEmpty() && surname.isPresent())
-            return personRepository.findByHumanSurnameIgnoreCase(surname);
+            return personRepository.findByHumanSurname(surname);
         if (name.isEmpty())
             return personRepository.findAll();
-        return personRepository.findByHumanNameAndHumanSurnameIgnoreCase(name, surname);
+        return personRepository.findByHumanNameAndHumanSurname(name, surname);
     }
 
     // PUT - Update - CRUD - Update
-    public Optional<Person> updatePersonFieldsByHumanId(Person person, long id) {
-        Optional<Person> personToUpdate = personRepository.findByHumanId(id);
-        if (personToUpdate.isPresent()
-                && personToUpdate.get().getHuman().getName().equals(person.getHuman().getName())
-                && personToUpdate.get().getHuman().getSurname().equals(person.getHuman().getSurname())
-                && personToUpdate.get().getHuman().getAge() == person.getHuman().getAge()) {
-            personToUpdate = Optional.of(personRepository.save(person));
-        }
-        return personToUpdate;
+    public int updatePersonFieldsByHumanId(Person person, long id) {
+        return personRepository.updatePersonFieldsByHumanId(
+                person.getPhoneNumber(),
+                person.getCityOfLiving(),
+                id);
     }
 
     // PUT - Update - CRUD - Update
-    public void jpqlUpdateFullPersonByHumanId(Person person, long id) {
-        personRepository.jpqlUpdateFullPersonByHumanId(
+    public int updateFullPersonByHumanId(Person person, long id) {
+        return personRepository.updateFullPersonByHumanId(
                 person.getHuman().getName(),
                 person.getHuman().getSurname(),
                 person.getHuman().getAge(),
@@ -74,25 +75,17 @@ public class OrmHibernateService {
     }
 
     // PUT - Update - CRUD - Update
-    public Optional<Person> updateOrReinsertPersonByHumanId(Person person, long id) {
-        Optional<Person> p = personRepository.findByHumanId(id);
-        p.ifPresent(personRepository::delete);
-        return Optional.of(personRepository.save(person));
+    public int updateOrReinsertPersonByHumanId(Person person, long id) {
+        return updateFullPersonByHumanId(person, id);
     }
 
     // DELETE - Delete - CRUD - Delete
     public long deletePersonByHumanId(long id) {
-        Optional<Person> personToUpdate = personRepository.findByHumanId(id);
-        if (personToUpdate.isPresent()) {
-            personRepository.delete(personToUpdate.get());
-            return id;
-        }
-        return -1L;
+        return personRepository.deletePersonByHumanId(id);
     }
 
     // DELETE - Delete - CRUD - Delete
-    public boolean deleteAllPersons() {
-        personRepository.deleteAll();
-        return true;
+    public int deleteAllPersons() {
+        return personRepository.delete();
     }
 }
