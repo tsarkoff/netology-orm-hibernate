@@ -19,8 +19,8 @@ public class OrmHibernateController {
     /**
      * Push new person list exclude duplicates (CRUD - Create)
      *
-     * @param persons person list to save
-     * @return saved person list
+     * @param persons person list to be saved
+     * @return saved person list or empty list if was not saved
      */
     @PostMapping
     public List<Person> savePersons(@Valid @RequestBody List<Person> persons) {
@@ -28,105 +28,92 @@ public class OrmHibernateController {
     }
 
     /**
-     * Get person by Human ID if found (CRUD - Read)
+     * Get persons (historical records with different TimeStamp) by Human ID (CRUD - Read)
      *
-     * @param id person (human) identifier
-     * @return found person
+     * @param id person (human) identifier to be found
+     * @return found person or null if was not found
      */
     @GetMapping("/{id}")
-    public Optional<Person> getPersonsById(@PathVariable("id") long id) {
-        return ormHibernateService.findByHumanId(id);
+    public List<Person> getPersonsById(@PathVariable("id") long id) {
+        return ormHibernateService.findAllPersonsByHumanId(id);
     }
 
     /**
-     * Get person list by optional name and/or surname (CRUD - Read)
+     * Get full person list or person list by optional name and/or surname (CRUD - Read)
      *
-     * @param name    person name
-     * @param surname person surname
-     * @return found person list
+     * @param name    optional person name
+     * @param surname optional person surname
+     * @return found person list or empty list if was not found
      */
     @GetMapping
-    public List<Person> getPersonsByNameAndSurname(
+    public List<Person> getPersons(
             @RequestParam("name") Optional<String> name,
             @RequestParam("surname") Optional<String> surname) {
-        return ormHibernateService.findByHumanNameAndHumanSurname(name, surname);
+        return ormHibernateService.findPersonsByHumanNameAndHumanSurname(name, surname);
     }
 
     /**
      * Get person list by city of living (CRUD - Read)
      *
-     * @param city person city of living
-     * @return person list
+     * @param city person's city of living
+     * @return person list or empty list if was not found
      */
     @GetMapping("/by-city")
     public List<Person> getPersonsByCity(@RequestParam("city") String city) {
-        return ormHibernateService.findByCityOfLiving(city);
+        return ormHibernateService.findPersonsByCityOfLiving(city);
     }
 
     /**
-     * Get person list by age less than pointed (CRUD - Read)
+     * Get person list by age, where age is less than pointed in param (CRUD - Read)
      *
-     * @param age person age
-     * @return person list
+     * @param age person age is the top bound for search
+     * @return person list or empty list if was not found
      */
     @GetMapping("/by-age")
     public List<Person> getPersonsByAge(@RequestParam("age") int age) {
-        return ormHibernateService.findByHumanAgeLessThanOrderByHumanAgeDesc(age);
+        return ormHibernateService.findPersonsByHumanAgeLessThanOrderByHumanAgeDesc(age);
     }
 
     /**
-     * Update only person fields by Human ID or ignore if human fields updated (CRUD - Update)
+     * Update person or create a new one if was not found
      *
-     * @param person input person
-     * @param id     person (human) identifier
-     * @return person updated
+     * @param person person to be updated, if was not found then create a new one
+     * @return person updated or created
      */
-    @PutMapping("/{id}/update-person-data")
-    public Optional<Person> updatePersonFieldsByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
-        return ormHibernateService.updatePersonFieldsByHumanId(person, id);
+    @PutMapping
+    public Person putPerson(@Valid @RequestBody Person person) {
+        return ormHibernateService.savePerson(person);
     }
 
     /**
-     * JPQL Update all person fields by Human ID, including human fields except human id (CRUD - Update)
+     * Delete person (CRUD - Delete)
      *
-     * @param person input person
-     * @param id     person (human) identifier
+     * @param person person to be deleted
+     * @return deleted person Human ID of -1 if was not found
      */
-    @PutMapping("/{id}/pure-update-person-human-data")
-    public void updatePerson(@Valid @RequestBody Person person, @PathVariable long id) {
-        ormHibernateService.jpqlUpdateFullPersonByHumanId(person, id);
+    @DeleteMapping
+    public long deletePerson(@Valid @RequestBody Person person) {
+        return ormHibernateService.deletePerson(person);
     }
 
     /**
-     * Update by Human ID the person fields only or re-INSERT new person if human fields changed (CRUD - Update)
+     * Delete all person records by Human ID (CRUD - Delete)
      *
-     * @param person input person
-     * @param id     person (human) identifier
-     * @return person updated
-     */
-    @PutMapping("/{id}/reinsert-person-human")
-    public Optional<Person> updateOrReinsertPersonByHumanId(@Valid @RequestBody Person person, @PathVariable long id) {
-        return ormHibernateService.updateOrReinsertPersonByHumanId(person, id);
-    }
-
-    /**
-     * Delete person by Human ID (CRUD - Delete)
-     *
-     * @param id person (human) identifier
-     * @return Human ID of deleted person or -1 if person not found
+     * @param id person (human) identifier to delete a person records
+     * @return Human ID of deleted person or -1 if person was not found
      */
     @DeleteMapping("/{id}")
-    public long deletePerson(@PathVariable long id) {
+    public long deletePersonById(@PathVariable long id) {
         return ormHibernateService.deletePersonByHumanId(id);
     }
 
     /**
-     * Delete ALL persons (CRUD - Delete)
+     * Delete all persons (CRUD - Delete)
      *
-     * @return operation result
+     * @return deleted person Human ID of -1 if was not found
      */
-    @DeleteMapping
-    public boolean deleteAllPersons() {
+    @DeleteMapping("/all")
+    public long deletePersons() {
         return ormHibernateService.deleteAllPersons();
     }
 }

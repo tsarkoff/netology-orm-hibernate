@@ -1,5 +1,4 @@
-### Fill database with initial data
-### Люди живут в городах, Анна Оболонская (id=1) в 16 лет живет в Ясной Поляне
+### Push date to database
 POST http://127.0.0.1:8080/person
 Content-Type: application/json
 
@@ -50,11 +49,11 @@ Content-Type: application/json
 ### Get Person by Human ID
 GET http://127.0.0.1:8080/person/1
 
-### Get Person by Human name and surname
-GET http://127.0.0.1:8080/person?name=Александр&surname=Пушкин
-
 ### Get all Persons
 GET http://127.0.0.1:8080/person
+
+### Get Person by Human name and surname
+GET http://127.0.0.1:8080/person?name=Александр&surname=Пушкин
 
 ### Get Person by Human name
 GET http://127.0.0.1:8080/person?name=Анна
@@ -63,33 +62,13 @@ GET http://127.0.0.1:8080/person?name=Анна
 GET http://127.0.0.1:8080/person?surname=Оболонская
 
 ### Get Person by City if Living
-### В Ясной Поляне живет Анна Оболонская в свои 16 лет
 GET http://127.0.0.1:8080/person/by-city?city=Ясная+Поляна
 
 ### Get Person by age less than pointed, sorted by DESC
 GET http://127.0.0.1:8080/person/by-age?age=20
 
-### #1 Update Person filelds only by Human ID (if Human fields changed, then ignore this Update)
-### Анна Оболонская приехала в Питер и сказала, что ей 18 лет, чтобы получить новую СИМку
-### СИМку не дали и из Питера выгнали, т.к. при смене города и СИМки нельзя менять паспортные данные Human (Primary Key)
-PUT http://127.0.0.1:8080/person/1/update-person-data
-Content-Type: application/json
-
-{
-  "human": {
-    "id": 1,
-    "name": "Анна",
-    "surname": "Оболонская",
-    "age": 18
-  },
-  "phoneNumber": "+7-812-888-11-22",
-  "cityOfLiving": "Санкт-Петербург"
-}
-
-
-### #2 Update Person filelds only by Human ID (if Human fields changed, then ignore this Update)
-### См.#1 выше + Анна Оболонская взяла разрешение у тётушки (родителей у неё не было) и получила СИМку в 16 лет
-PUT http://127.0.0.1:8080/person/1/update-person-data
+### UPSERT Person - just update an existing record, because to change only Person filelds and not Human (PK) ones
+PUT http://127.0.0.1:8080/person
 Content-Type: application/json
 
 {
@@ -104,10 +83,8 @@ Content-Type: application/json
 }
 
 
-### Update full Person (Person & Human filelds) by Human ID independently that Human (PK) changed => use JPQL
-### А если бы Анна дождалась 17 лет и сразу: вышла замуж, обноваила паспорт, переехала и запросила новую СИМку
-### то сотрудник Картотеки сразу бы поменял данные, не оставляя старые и ящике (id=1) лежал бы один паспорт
-PUT http://127.0.0.1:8080/person/1/pure-update-person-human-data
+### USERT Person - insert a new record, because Human (PK) fields changed
+PUT http://127.0.0.1:8080/person
 Content-Type: application/json
 
 {
@@ -117,15 +94,12 @@ Content-Type: application/json
     "surname": "Каренина",
     "age": 17
   },
-  "phoneNumber": "+7-423-444-44-33",
+  "phoneNumber": "+7-812-888-12-12",
   "cityOfLiving": "Санкт-Петербург"
 }
 
-
-### Insert/Update by Human ID: Update Person if only Person filelds changed and Insert if Human fields changed
-### Анна Оболонская в 17 лет вышла замуж за Алексея Каренина, сменила паспорт: Фамилию, Возраст, Прописка, СИМка (Human PK)
-### При этом, в Картотеке в ящике Анны (id=1) осталичсь данные старого паспорта и добавлены новые (Hunam PK = две записи с humanId=1))
-PUT http://127.0.0.1:8080/person/1/reinsert-person-human
+### USERT Person - insert a new record, because Human (PK) fields changed
+PUT http://127.0.0.1:8080/person
 Content-Type: application/json
 
 {
@@ -133,16 +107,47 @@ Content-Type: application/json
     "id": 1,
     "name": "Анна",
     "surname": "Каренина",
-    "age": 16
+    "age": 18
   },
-  "phoneNumber": "+7-812-777-77-77",
+  "phoneNumber": "+7-812-888-12-12",
   "cityOfLiving": "Санкт-Петербург"
 }
 
 
-### Delete Person by Human ID
-### А потом Анна Каренина бросилась под поезд, а клерк сжёг её данные из Картотеки
+### Delete (case #1.1) Person - initial one, that was updated within person fields only
+DELETE http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Оболонская",
+    "age": 16
+  },
+  "phoneNumber": "+7-812-888-11-22",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete (case #1.2) Person - new one, that was created within human (PK) fields also
+DELETE http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 17
+  },
+  "phoneNumber": "+7-812-888-12-12",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete (alternative case #2) Person by Human ID - remove all Person instances which do have the pointed Human ID
 DELETE http://127.0.0.1:8080/person/1
 
-### Delete ALL Persons
-DELETE http://127.0.0.1:8080/person
+### Delete ALL Persons from DB
+DELETE http://127.0.0.1:8080/person/all

@@ -5,17 +5,16 @@
 4. Выполнение запросов по очереди (запросы использует @EmbeddedId Human ID):
    - POST http://127.0.0.1:8080/person наполняет таблицу начальными данными
    - GET http://127.0.0.1:8080/person/1 возвращает Person по Human ID
+   - GET http://127.0.0.1:8080/person возвращает список всех Person из базы
    - GET http://127.0.0.1:8080/person?name=&surname= возвращает список Person по имени / фамилии
-   - GET http://127.0.0.1:8080/person возвращает список список Person из базы
    - GET http://127.0.0.1:8080/person?name= возвращает список Person по имени
    - GET http://127.0.0.1:8080/person?surname= возвращает список Person по фамилии
    - GET http://127.0.0.1:8080/person/by-city?city= возвращает список Person по городу
    - GET http://127.0.0.1:8080/person/by-age?age= возвращает список Person с возрастом меньше указанного по убыванию
-   - PUT http://127.0.0.1:8080/person/1/update-person-data обновляет поля только Person по Human ID
-   - PUT http://127.0.0.1:8080/person/1/pure-update-person-human-data (без upsert) только обновляет все поля существующей Person через JPQL UPDATE   
-   - PUT http://127.0.0.1:8080/person/1/reinsert-person-human (save) обновляет все поля Person или реинсёртит Person, если такой уже был по Human ID
-   - DELETE http://127.0.0.1:8080/person/1 удаляет Person по Human ID
-   - DELETE http://127.0.0.1:8080/person удаляет всех Person из БД
+   - PUT http://127.0.0.1:8080/person/person UPSERT: обновляет Person и БД (или создает новую, если не найдена)
+   - DELETE http://127.0.0.1:8080/person удаляет одну Person из БД
+   - DELETE http://127.0.0.1:8080/person/1 удаляет все записи Person по Human ID
+   - DELETE http://127.0.0.1:8080/person удаляет все Person из БД
 
 # 2. Задача «Слой DAO c JPA Repositories»
 ## Описание
