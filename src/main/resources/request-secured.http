@@ -1,0 +1,30 @@
+### Get Persons (ROLE_READ)
+GET http://localhost:8080/person-secured
+
+### Get Person by ID (ROLE_READ or ROLE_WRITE)
+GET http://localhost:8080/person-secured/10
+
+### Save Person (ROLE_WRITE)
+POST http://localhost:8080/person-secured
+Content-Type: application/json
+//"[{'human': {'id': 10,'name': 'Михаил','surname': 'Лермонтов','age': 27},'phoneNumber': '+7-8793-88-77-93','cityOfLiving': 'Пятигорск'}]"
+
+[
+  {
+    "human": {
+      "id": 10,
+      "name": "Михаил",
+      "surname": "Лермонтов",
+      "age": 27
+    },
+    "phoneNumber": "+7-8793-88-77-93",
+    "cityOfLiving": "Пятигорск"
+  }
+]
+
+
+### Delete Person by ID (ROLE_WRITE or ROLE_DELETE)
+DELETE http://localhost:8080/person-secured/10
+
+### Delete ALL Persons (ROLE_DELETE and ONLY if @RequestParam String #username == authentication.principal.username)
+DELETE http://localhost:8080/person-secured?username=employer

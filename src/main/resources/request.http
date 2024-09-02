@@ -1,5 +1,153 @@
-###
-GET http://127.0.0.1:8080/persons/init
+### Push date to database
+POST http://127.0.0.1:8080/person
+Content-Type: application/json
 
-###
-GET http://127.0.0.1:8080/persons/by-city?city=moscow
+[
+  {
+    "human": {
+      "id": 1,
+      "name": "Анна",
+      "surname": "Оболонская",
+      "age": 16
+    },
+    "phoneNumber": "+7-4872-88-44-33",
+    "cityOfLiving": "Ясная Поляна"
+  },
+  {
+    "human": {
+      "id": 2,
+      "name": "Пётр",
+      "surname": "Иванов",
+      "age": 19
+    },
+    "phoneNumber": "+7-812-888-11-22",
+    "cityOfLiving": "Санкт-Петербург"
+  },
+  {
+    "human": {
+      "id": 3,
+      "name": "Иван",
+      "surname": "Петров",
+      "age": 25
+    },
+    "phoneNumber": "+7-495-444-99-55",
+    "cityOfLiving": "Москва"
+  },
+  {
+    "human": {
+      "id": 4,
+      "name": "Александр",
+      "surname": "Пушкин",
+      "age": 35
+    },
+    "phoneNumber": "+7-862-888-66-22",
+    "cityOfLiving": "Сочи"
+  }
+]
+
+
+### Get Person by Human ID
+GET http://127.0.0.1:8080/person/1
+
+### Get all Persons
+GET http://127.0.0.1:8080/person
+
+### Get Person by Human name and surname
+GET http://127.0.0.1:8080/person?name=Александр&surname=Пушкин
+
+### Get Person by Human name
+GET http://127.0.0.1:8080/person?name=Анна
+
+### Get Person by Human surname
+GET http://127.0.0.1:8080/person?surname=Оболонская
+
+### Get Person by City if Living
+GET http://127.0.0.1:8080/person/by-city?city=Ясная+Поляна
+
+### Get Person by age less than pointed, sorted by DESC
+GET http://127.0.0.1:8080/person/by-age?age=20
+
+### UPSERT Person - just update an existing record, because to change only Person filelds and not Human (PK) ones
+PUT http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Оболонская",
+    "age": 16
+  },
+  "phoneNumber": "+7-812-888-11-22",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### USERT Person - insert a new record, because Human (PK) fields changed
+PUT http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 17
+  },
+  "phoneNumber": "+7-812-888-12-12",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+### USERT Person - insert a new record, because Human (PK) fields changed
+PUT http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 18
+  },
+  "phoneNumber": "+7-812-888-12-12",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete (case #1.1) Person - initial one, that was updated within person fields only
+DELETE http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Оболонская",
+    "age": 16
+  },
+  "phoneNumber": "+7-812-888-11-22",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete (case #1.2) Person - new one, that was created within human (PK) fields also
+DELETE http://127.0.0.1:8080/person
+Content-Type: application/json
+
+{
+  "human": {
+    "id": 1,
+    "name": "Анна",
+    "surname": "Каренина",
+    "age": 17
+  },
+  "phoneNumber": "+7-812-888-12-12",
+  "cityOfLiving": "Санкт-Петербург"
+}
+
+
+### Delete (alternative case #2) Person by Human ID - remove all Person instances which do have the pointed Human ID
+DELETE http://127.0.0.1:8080/person/1
+
+### Delete ALL Persons from DB
+DELETE http://127.0.0.1:8080/person/all
