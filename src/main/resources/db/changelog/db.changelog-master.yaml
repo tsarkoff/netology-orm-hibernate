@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: migrations/001-create-security-tables.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/002-create-persons-tables.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/003-populate-persons-tables.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/004-populate-security-tables.sql
+      relativeToChangelogFile: true

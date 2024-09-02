@@ -1,11 +1,6 @@
 package ru.netology.ormhibernate.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
+@Table(name = "person", schema = "public")
 public class Person {
     @Embeddable
     @Builder
@@ -27,26 +23,26 @@ public class Person {
     @NoArgsConstructor
     @Data
     public static class Human implements Serializable {
-        @NotNull
+        @Column(name = "id", nullable = false)
         private long id;
-        @NotEmpty
+        @Column(name = "name", nullable = false)
         private String name;
-        @NotEmpty
+        @Column(name = "surname", nullable = false)
         private String surname;
-        @NotNull
+        @Column(name = "age", nullable = false)
         private int age;
     }
 
     @EmbeddedId
     private Human human;
 
-    @Column(nullable = false)
+    @Column(name ="phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(nullable = false)
+    @Column(name ="city_of_living", nullable = false)
     private String cityOfLiving;
 
-    @Column(nullable = false)
+    @Column(name ="timestamp")
     @UpdateTimestamp
     private LocalDateTime timeStamp;
 }

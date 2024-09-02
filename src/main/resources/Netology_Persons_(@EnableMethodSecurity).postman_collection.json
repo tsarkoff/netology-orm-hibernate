@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "9e165344-5a58-4ee1-a4ea-164178737ca2",
+		"name": "Netology Persons (@EnableMethodSecurity)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "10914197"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"protocolProfileBehavior": {
+				"followRedirects": false,
+				"followAuthorizationHeader": false,
+				"followOriginalHttpMethod": false
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"password": "pwd",
+						"username": "employee"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "employee",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "pwd",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": "http://localhost:8080/login"
+			},
+			"response": []
+		},
+		{
+			"name": "GET One Person (READ)",
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/person-secured/1"
+			},
+			"response": []
+		},
+		{
+			"name": "GET Persons (READ) Copy",
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/person-secured",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"person-secured"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "employee",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "pwd",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST One Person (WRITE)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"human\": {\r\n            \"id\": 10,\r\n            \"name\": \"Михаил\",\r\n            \"surname\": \"Лермонтов\",\r\n            \"age\": 27\r\n        },\r\n        \"phoneNumber\": \"+7-8793-88-77-93\",\r\n        \"cityOfLiving\": \"Пятигорск\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/person-secured"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE One Person (WRITE, DELETE)",
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:8080/person-secured/1"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE All Persons (DELETE + \"#username == authentication.principal.username)",
+			"protocolProfileBehavior": {
+				"followRedirects": false
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/person-secured/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"person-secured",
+						"1"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "employee",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "pwd",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
